@@ -25,6 +25,37 @@ A powerful platform that dynamically optimizes resumes using AI based on job des
 - **Multi-section Optimization**: Optimize full resume or specific sections
 - **Copy-to-Clipboard**: Easy integration of optimized content
 
+## 📁 Project Structure
+
+```
+resume-ai-optimizer/
+├── backend/                 # Flask REST API
+│   ├── app.py              # Main Flask application
+│   ├── requirements.txt    # Python dependencies
+│   ├── Dockerfile          # Backend container config
+│   └── .env.example        # Environment template
+│
+├── frontend/               # React Application
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   │   ├── FileUpload.js       # Resume upload
+│   │   │   ├── KeywordDisplay.js   # Keywords display
+│   │   │   ├── AnalysisResults.js  # ATS analysis
+│   │   │   └── OptimizerPanel.js   # AI optimization
+│   │   ├── services/
+│   │   │   └── api.js      # API integration
+│   │   └── App.js          # Main application
+│   ├── public/
+│   ├── package.json        # Node dependencies
+│   └── Dockerfile          # Frontend container config
+│
+├── docker-compose.yml      # Multi-container setup
+├── start.sh               # Quick start script
+├── README.md              # This file
+├── CONTRIBUTING.md        # Developer guide
+└── TROUBLESHOOTING.md     # Common issues
+```
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -253,12 +284,37 @@ Get AI-powered improvement suggestions.
 
 ## 📝 Usage Guide
 
+### Workflow
+
+```
+1. Upload Resume → 2. Parse Text → 3. Extract Keywords
+                              ↓
+4. Enter Job Description → 5. Analyze ATS Score → 6. View Matched/Missing Keywords
+                              ↓
+7. Select Optimization Type → 8. AI Generates Optimized Content → 9. Copy & Use
+```
+
+### Step-by-Step
+
 1. **Upload Resume**: Click or drag-and-drop your resume (PDF, DOCX, or TXT)
-2. **Enter Job Description**: Paste the target job description in the right panel
-3. **Analyze**: Click "Analyze ATS Compatibility" to see your match score
-4. **Optimize**: Choose a section to optimize and click "Optimize Resume"
-5. **Get Suggestions**: Click "Get Suggestions" for specific improvement tips
-6. **Copy & Use**: Copy the optimized content to your clipboard
+2. **Review Extracted Keywords**: See important keywords automatically identified
+3. **Enter Job Description**: Paste the target job description in the right panel
+4. **Analyze ATS Compatibility**: Click to see your match score and gaps
+5. **Choose Optimization**:
+   - Full Resume: Complete rewrite optimized for the job
+   - Summary: Professional summary tailored to position
+   - Experience: Enhanced work experience section
+   - Skills: Relevant skills recommendations
+6. **Get AI Suggestions**: Click for specific, actionable improvement tips
+7. **Copy & Apply**: Use the copy button to get optimized content
+
+### Tips for Best Results
+
+- Use detailed job descriptions for better matching
+- Review AI suggestions critically - they're recommendations, not rules
+- Maintain authenticity - don't add skills you don't have
+- Optimize for specific job postings rather than generic resumes
+- Test different optimization sections to find what works best
 
 ## 🔒 Security Notes
 
