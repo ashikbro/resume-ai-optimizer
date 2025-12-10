@@ -1,0 +1,11 @@
+Flask>=2.3.3
+flask-cors>=4.0.0
+openai>=0.28.0
+PyPDF2>=3.0.1
+python-docx>=0.8.11
+Werkzeug>=2.3.7
+gunicorn>=21.2.0
+
+# Optional: spaCy for advanced NLP (requires compatible Python version)
+# Uncomment if you want to install spaCy (may not work with Python 3.12+):
+# spacy>=3.7.0
