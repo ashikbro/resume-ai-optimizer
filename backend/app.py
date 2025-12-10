@@ -3,12 +3,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import openai
-import spacy
-from spacy.matcher import PhraseMatcher
 import PyPDF2
 import docx
 import re
 from collections import Counter
+
+# Try to import spacy, but make it optional
+try:
+    import spacy
+    from spacy.matcher import PhraseMatcher
+    SPACY_AVAILABLE = True
+except ImportError:
+    print("Warning: spaCy not available. Using basic keyword extraction.")
+    SPACY_AVAILABLE = False
+    spacy = None
+    PhraseMatcher = None
 
 app = Flask(__name__)
 CORS(app)
@@ -25,12 +34,53 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Initialize OpenAI
 openai.api_key = os.getenv('OPENAI_API_KEY', '')
 
-# Initialize spaCy
-try:
-    nlp = spacy.load('en_core_web_sm')
-except:
-    print("Warning: spaCy model 'en_core_web_sm' not found. Please run: python -m spacy download en_core_web_sm")
-    nlp = None
+# Check OpenAI version and set up compatibility
+OPENAI_V1 = hasattr(openai, '__version__') and openai.__version__.startswith('1.')
+if OPENAI_V1:
+    from openai import OpenAI
+    openai_client = OpenAI(api_key=openai.api_key) if openai.api_key else None
+else:
+    openai_client = None
+
+# Initialize spaCy if available
+nlp = None
+if SPACY_AVAILABLE:
+    try:
+        nlp = spacy.load('en_core_web_sm')
+    except:
+        print("Warning: spaCy model 'en_core_web_sm' not found. Please run: python -m spacy download en_core_web_sm")
+        nlp = None
+
+
+def call_openai_chat(system_message, user_message, max_tokens=1500, temperature=0.7):
+    """Helper function to call OpenAI API with compatibility for different versions"""
+    if not openai.api_key:
+        raise Exception("OpenAI API key not configured")
+    
+    if OPENAI_V1 and openai_client:
+        # Use new OpenAI v1+ API
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+        return response.choices[0].message.content.strip()
+    else:
+        # Use old OpenAI v0.x API
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+        return response.choices[0].message.content.strip()
 
 
 def allowed_file(filename):
@@ -194,6 +244,7 @@ def health():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
+        'spacy_available': SPACY_AVAILABLE,
         'spacy_loaded': nlp is not None,
         'openai_configured': bool(openai.api_key)
     })
@@ -344,18 +395,9 @@ Current Resume:
 
 Suggested Skills:"""
         
-        # Call OpenAI API
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a professional resume writer and career coach with expertise in ATS optimization."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1500,
-            temperature=0.7
-        )
-        
-        optimized_text = response.choices[0].message.content.strip()
+        # Call OpenAI API using helper function
+        system_message = "You are a professional resume writer and career coach with expertise in ATS optimization."
+        optimized_text = call_openai_chat(system_message, prompt, max_tokens=1500, temperature=0.7)
         
         return jsonify({
             'success': True,
@@ -398,17 +440,8 @@ Provide 5-7 specific suggestions to improve this resume for the job, focusing on
 
 Format your response as a numbered list."""
         
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert career coach and resume consultant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=800,
-            temperature=0.7
-        )
-        
-        suggestions = response.choices[0].message.content.strip()
+        system_message = "You are an expert career coach and resume consultant."
+        suggestions = call_openai_chat(system_message, prompt, max_tokens=800, temperature=0.7)
         
         return jsonify({
             'success': True,

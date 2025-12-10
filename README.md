@@ -51,8 +51,11 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Download spaCy language model:
+4. (Optional) Download spaCy language model for advanced NLP features:
 ```bash
+# Note: spaCy may have compatibility issues with Python 3.12+
+# The application works without it using basic keyword extraction
+pip install spacy
 python -m spacy download en_core_web_sm
 ```
 
