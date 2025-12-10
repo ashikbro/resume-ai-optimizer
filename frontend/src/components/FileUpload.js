@@ -36,7 +36,11 @@ function FileUpload({ onFileUpload, loading }) {
     const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
     
     if (!validTypes.includes(file.type)) {
-      alert('Please upload a PDF, DOCX, or TXT file');
+      // Show inline error instead of browser alert
+      setFileName('');
+      if (typeof onFileUpload === 'function') {
+        onFileUpload(null); // Signal error to parent
+      }
       return;
     }
 

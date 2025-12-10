@@ -65,7 +65,26 @@ function OptimizerPanel({ resumeText, jobDescription, onOptimize, loading }) {
           <div className="result-header">
             <h4>Optimized Content</h4>
             <button 
-              onClick={() => navigator.clipboard.writeText(optimizedText)}
+              onClick={() => {
+                try {
+                  navigator.clipboard.writeText(optimizedText).then(
+                    () => console.log('Copied to clipboard'),
+                    (err) => console.error('Failed to copy:', err)
+                  );
+                } catch (err) {
+                  // Fallback for browsers without clipboard API
+                  const textArea = document.createElement('textarea');
+                  textArea.value = optimizedText;
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  try {
+                    document.execCommand('copy');
+                  } catch (e) {
+                    console.error('Fallback copy failed:', e);
+                  }
+                  document.body.removeChild(textArea);
+                }
+              }}
               className="btn btn-small"
             >
               Copy to Clipboard

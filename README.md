@@ -95,6 +95,35 @@ npm start
 
 The React app will open at `http://localhost:3000`
 
+### Quick Start
+
+Use the provided startup script to run both frontend and backend:
+
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+### Docker Deployment
+
+For production deployment using Docker:
+
+```bash
+# Set your OpenAI API key in environment
+export OPENAI_API_KEY=your-api-key-here
+
+# Build and start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+Access the application at `http://localhost:3000`
+
 ## 📖 API Documentation
 
 ### Endpoints

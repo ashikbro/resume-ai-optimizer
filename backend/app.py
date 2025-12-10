@@ -8,6 +8,13 @@ import docx
 import re
 from collections import Counter
 
+# Common stop words to exclude (defined at module level for performance)
+STOP_WORDS = set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+                  'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
+                  'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+                  'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these',
+                  'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your'])
+
 # Try to import spacy, but make it optional
 try:
     import spacy
@@ -158,15 +165,8 @@ def extract_keywords_basic(text):
     text = re.sub(r'[^\w\s]', ' ', text.lower())
     words = text.split()
     
-    # Common stop words to exclude
-    stop_words = set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-                      'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
-                      'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-                      'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these',
-                      'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your'])
-    
-    # Filter words
-    filtered_words = [w for w in words if w not in stop_words and len(w) > 2]
+    # Filter words using module-level stop words set
+    filtered_words = [w for w in words if w not in STOP_WORDS and len(w) > 2]
     
     # Count and return most common
     word_freq = Counter(filtered_words)
@@ -453,4 +453,6 @@ Format your response as a numbered list."""
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Use debug mode only in development, controlled by environment variable
+    debug_mode = os.getenv('FLASK_ENV', 'production') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
